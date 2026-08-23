@@ -21,7 +21,7 @@ const __dirname = path.resolve();
 
 app.use(
   cors({
-    origin: [process.env.FRONTEND_PUBLIC_IP, "http://localhost:5173", "http://35.169.44.254"],
+    origin: [process.env.FRONTEND_PUBLIC_IP, "http://localhost:5173", "http://35.169.44.254","http://spring-load-402567447.us-east-1.elb.amazonaws.com"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   }),
