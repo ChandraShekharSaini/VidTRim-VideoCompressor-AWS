@@ -321,8 +321,4 @@ curl http://localhost/api/query/footer/message
 
 ---
 
-#
 
----
-
-##
