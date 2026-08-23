@@ -1,13 +1,6 @@
-
 ---
 
-🔗 **Live Demo:** [https://frontend-five-gamma-26.vercel.app](https://frontend-five-gamma-26.vercel.app)
-
----
-
----
-
-🔗 **Live Demo:** [10.0.2.1](https://frontend-five-gamma-26.vercel.app)
+🔗 **Live Demo:** [10.0.154.92](https://frontend-five-gamma-26.vercel.app)
 
 ---
 
