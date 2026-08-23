@@ -36,7 +36,7 @@ This guide explains how to deploy a **React/Vite frontend** on a public AWS EC2 
 
 ### Deployment Model
 
-* **Frontend EC2** → Public
+* **Frontend EC2** → Private
 * **Backend EC2** → Private
 * **Nginx** → Serves React and reverse proxies API requests
 * **Node.js** → Backend API
