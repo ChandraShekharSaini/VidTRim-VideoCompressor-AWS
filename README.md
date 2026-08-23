@@ -190,13 +190,13 @@ git clone <YOUR_BACKEND_REPOSITORY_URL>
 Example:
 
 ```bash
-git clone https://github.com/username/backend.git
+git clone https://github.com/ChandraShekharSaini/VidTRim-VideoCompressor-AWS.git
 ```
 
 Move into the project:
 
 ```bash
-cd backend
+cd server
 ```
 
 ---
@@ -455,7 +455,7 @@ git clone <YOUR_FRONTEND_REPOSITORY_URL>
 Example:
 
 ```bash
-git clone https://github.com/username/frontend-main.git
+git clone https://github.com/ChandraShekharSaini/VidTRim-VideoCompressor-AWS.git
 ```
 
 Move into the project:
