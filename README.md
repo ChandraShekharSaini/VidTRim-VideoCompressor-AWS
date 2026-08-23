@@ -61,30 +61,6 @@ This guide explains how to deploy a **React/Vite frontend** on a public AWS EC2 
 
 ---
 
-# 📋 Prerequisites
-
-## Frontend EC2
-
-* AWS EC2 instance
-* Amazon Linux
-* Public IP
-* Node.js
-* npm
-* Git
-* Nginx
-* Frontend GitHub repository
-
-## Backend EC2
-
-* AWS EC2 instance
-* Amazon Linux
-* Private IP
-* Node.js
-* npm
-* Git
-* PM2
-* Backend GitHub repository
-
 ## AWS Requirements
 
 * Both EC2 instances should be in the same VPC or have appropriate network connectivity.
