@@ -2,6 +2,14 @@
 
 This guide explains how to deploy a **React/Vite frontend** on a public AWS EC2 instance using **Nginx**, and a **Node.js backend** on a private AWS EC2 instance.
 
+## 📑 Quick Navigation
+
+- [🖥️ Backend Deployment](#️-2-backend-deployment--private-ec2)
+- [🌐 Frontend Deployment](#-5-frontend-deployment--public-ec2)
+
+---
+
+
 ---
 
 # 🏗️ Architecture
