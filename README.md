@@ -1,4 +1,4 @@
-# 🚀 Full-Stack Deployment on AWS EC2 — React/Vite + Nginx + Node.js
+# 🚀 Full-Stack Deployment on AWS EC2 — React + Nginx + Node.js
 
 This guide explains how to deploy a **React/Vite frontend** on a public AWS EC2 instance using **Nginx**, and a **Node.js backend** on a private AWS EC2 instance.
 
