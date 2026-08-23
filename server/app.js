@@ -21,7 +21,7 @@ const __dirname = path.resolve();
 
 app.use(
   cors({
-    origin: [process.env.FRONTEND_PUBLIC_IP , "http://localhost:5173"" , "http://35.169.44.254"],
+    origin: [process.env.FRONTEND_PUBLIC_IP, "http://localhost:5173", "http://35.169.44.254"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   }),
