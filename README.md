@@ -5,6 +5,12 @@
 
 ---
 
+---
+
+🔗 **Live Demo:** [10.0.2.1](https://frontend-five-gamma-26.vercel.app)
+
+---
+
 
 # 🚀 Full-Stack Deployment on AWS EC2 — React + Nginx + Node.js
 
