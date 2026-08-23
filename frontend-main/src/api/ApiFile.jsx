@@ -2,7 +2,7 @@ import axios from "axios";
 
 //Production
 const serverUrl = axios.create({
-  baseURL: "http://,
+  baseURL: "http://44.207.202.196:3600",
   headers: { "Content-Type": "application/json" },
   withCredentials: "true",
 });
