@@ -167,12 +167,14 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # React frontend
     location / {
         try_files $uri $uri/ /index.html;
     }
 
+    # Backend reverse proxy
     location /api/ {
-        proxy_pass http://BACKEND_PRIVATE_IP:3600;
+        proxy_pass http://BACKEND_PRIVATE_IP:3306/;
 
         proxy_http_version 1.1;
 
