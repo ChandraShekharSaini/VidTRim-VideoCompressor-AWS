@@ -1,387 +1,67 @@
-# 🚀 Frontend Deployment on AWS EC2 using Nginx
-
-This guide explains how to deploy a React/Vite frontend application on an AWS EC2 instance using Nginx.
-
----
-
-# 📋 Prerequisites
-
-Before starting, make sure you have:
-
-* AWS EC2 Instance running Amazon Linux
-* Security Group allowing HTTP (80)
-* Node.js and npm installed
-* Nginx installed
-* Project source code available on GitHub
-
----
-
-# Step 1: Connect to EC2
-
-```bash
-ssh -i your-key.pem ec2-user@YOUR_PUBLIC_IP
-```
-
----
-
-# Step 2: Clone the Repository
-
-```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-```
-
-Example:
-
-```bash
-git clone https://github.com/username/frontend-main.git
-```
-
-Move into the project directory:
-
-```bash
-cd frontend-main
-```
-
----
-
-# Step 3: Install Dependencies
-
-```bash
-npm install
-```
-
-Verify installation:
-
-```bash
-npm list
-```
-
----
-
-# Step 4: Build the React Application
-
-Create the production build:
-
-```bash
-npm run build
-```
-
-After successful build, a `dist` folder will be generated.
-
-Verify:
-
-```bash
-ls dist
-```
-
-Expected output:
-
-```text
-assets
-index.html
-favicon.ico
-...
-```
-
----
-
-# Step 5: Install Nginx
-
-Amazon Linux:
-
-```bash
-sudo yum install nginx -y
-```
-
-Start Nginx:
-
-```bash
-sudo systemctl start nginx
-```
-
-Enable on boot:
-
-```bash
-sudo systemctl enable nginx
-```
-
-Verify:
-
-```bash
-sudo systemctl status nginx
-```
-
----
-
-# Step 6: Remove Default Nginx Files
-
-```bash
-sudo rm -rf /usr/share/nginx/html/*
-```
-
-Verify:
-
-```bash
-ls -la /usr/share/nginx/html
-```
-
----
-
-# Step 7: Copy React Build Files
-
-```bash
-sudo cp -r dist/* /usr/share/nginx/html/
-```
-
-Verify:
-
-```bash
-ls /usr/share/nginx/html
-```
-
-You should see:
-
-```text
-index.html
-assets/
-...
-```
-
----
-
-# Step 8: Configure Nginx
-
-Open configuration file:
-
-```bash
-sudo nano /etc/nginx/conf.d/frontend.conf
-```
-
-Paste:
-
-```nginx
-server {
-    listen 80;
-    server_name _;
-
-    root /usr/share/nginx/html;
-    index index.html;
-
-    # React frontend
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Backend reverse proxy
-    location /api/ {
-        proxy_pass http://BACKEND_PRIVATE_IP:3306/;
-
-        proxy_http_version 1.1;
-
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-Replace:
-
-```text
-BACKEND_PRIVATE_IP
-```
-
-with your backend private IP.
-
-Example:
-
-```text
-10.0.154.92
-```
-
-Save and exit.
-
----
-
-# Step 9: Validate Configuration
-
-```bash
-sudo nginx -t
-```
-
-Expected:
-
-```text
-syntax is ok
-test is successful
-```
-
----
-
-# Step 10: Reload Nginx
-
-```bash
-sudo systemctl reload nginx
-```
-
----
-
-# Step 11: Configure Axios
-
-Create API instance:
-
-```javascript
-import axios from "axios";
-
-const serverUrl = axios.create({
-  baseURL: "/",
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-export default serverUrl;
-```
-
----
-
-# Step 12: Make API Requests
-
-Example:
-
-```javascript
-serverUrl.get("api/query/footer/message");
-```
-
-Generated URL:
-
-```text
-/api/query/footer/message
-```
-
-Nginx forwards it to:
-
-```text
-http://BACKEND_PRIVATE_IP:3600/api/query/footer/message
-```
-
----
-
-# Step 13: Verify Deployment
-
-Open browser:
-
-```text
-http://YOUR_EC2_PUBLIC_IP
-```
-
-or
-
-```text
-http://YOUR_DOMAIN_NAME
-```
-
-Your React application should load successfully.
-
----
-
-# Step 14: Troubleshooting
-
-Check Nginx status:
-
-```bash
-sudo systemctl status nginx
-```
-
-Check access logs:
-
-```bash
-sudo tail -f /var/log/nginx/access.log
-```
-
-Check error logs:
-
-```bash
-sudo tail -f /var/log/nginx/error.log
-```
-
-Verify backend connectivity:
-
-```bash
-curl http://BACKEND_PRIVATE_IP:3600
-```
-
-Verify Nginx proxy:
-
-```bash
-curl http://localhost/api/query/footer/message
-```
-
----
-
-
 # 🚀 Full-Stack Deployment on AWS EC2 — React/Vite + Nginx + Node.js
 
 This guide explains how to deploy a **React/Vite frontend** on a public AWS EC2 instance using **Nginx**, and a **Node.js backend** on a private AWS EC2 instance.
 
 ---
 
-## 🏗️ Architecture
+# 🏗️ Architecture
 
 ```text
-                         Internet
-                            │
-                            ▼
-                  ┌──────────────────┐
-                  │  Frontend EC2    │
-                  │  Public IP       │
-                  │  Nginx :80       │
-                  └────────┬─────────┘
-                           │
-                           │ /api/*
-                           ▼
-                  ┌──────────────────┐
-                  │   Backend EC2    │
-                  │   Private IP     │
-                  │  10.0.154.92     │
-                  │   Node.js :3600  │
-                  │      PM2         │
-                  └────────┬─────────┘
-                           │
-                           ▼
-                    Database / Redis
+                         🌍 Internet
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │   Frontend EC2    │
+                    │   Public EC2      │
+                    │   Nginx :80       │
+                    │   React/Vite      │
+                    └─────────┬─────────┘
+                              │
+                              │ /api/*
+                              ▼
+                    ┌───────────────────┐
+                    │    Backend EC2    │
+                    │   Private EC2     │
+                    │ 10.0.154.92       │
+                    │   Node.js :3600   │
+                    │      PM2          │
+                    └─────────┬─────────┘
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │     Database      │
+                    │   MySQL / RDS     │
+                    └───────────────────┘
 ```
 
 ### Deployment Model
 
 * **Frontend EC2** → Public
 * **Backend EC2** → Private
-* **Nginx** → Reverse Proxy
+* **Nginx** → Serves React and reverse proxies API requests
 * **Node.js** → Backend API
-* **React/Vite** → Frontend
-* **PM2** → Node.js Process Manager
-* **AWS Security Groups** → Network Security
+* **PM2** → Node.js process manager
+* **MySQL/RDS** → Database
+* **AWS Security Groups** → Control network access
 
 ---
 
 # 📋 Prerequisites
 
-### Frontend EC2
+## Frontend EC2
 
-* AWS EC2
+* AWS EC2 instance
 * Amazon Linux
 * Public IP
 * Node.js
 * npm
-* Nginx
 * Git
+* Nginx
 * Frontend GitHub repository
 
-### Backend EC2
+## Backend EC2
 
-* AWS EC2
+* AWS EC2 instance
 * Amazon Linux
 * Private IP
 * Node.js
@@ -390,13 +70,15 @@ This guide explains how to deploy a **React/Vite frontend** on a public AWS EC2 
 * PM2
 * Backend GitHub repository
 
-### AWS Requirements
+## AWS Requirements
 
-Both EC2 instances should be in the same VPC or have appropriate network connectivity.
+* Both EC2 instances should be in the same VPC or have appropriate network connectivity.
+* Backend port `3600` should only be accessible from the frontend EC2 Security Group.
+* Frontend port `80` should be publicly accessible.
 
 ---
 
-# 🔐 AWS Security Group Configuration
+# 🔐 1. AWS Security Group Configuration
 
 ## Frontend EC2 Security Group
 
@@ -417,15 +99,15 @@ Allow:
 | Custom TCP | 3600 | Frontend EC2 Security Group    |
 | SSH        |   22 | Bastion / SSM / Allowed Source |
 
-> **Do not expose port `3600` to `0.0.0.0/0`.**
+> ⚠️ **Do not expose backend port `3600` to `0.0.0.0/0`.**
 
 ---
 
-# 🖥️ PART 1 — Backend Deployment
+# 🖥️ 2. Backend Deployment — Private EC2
 
-## Step 1: Create Backend EC2
+## Step 2.1: Create Backend EC2
 
-Create a second EC2 instance for the Node.js backend.
+Create a second EC2 instance for your Node.js backend.
 
 Example:
 
@@ -435,13 +117,13 @@ Private IP: 10.0.154.92
 Application Port: 3600
 ```
 
-The backend EC2 does not need a public IP.
+The backend EC2 does **not** need a public IP.
 
 ---
 
-## Step 2: Connect to Backend EC2
+## Step 2.2: Connect to Backend EC2
 
-For a private EC2, use one of:
+Because the backend EC2 is private, use one of:
 
 * AWS Systems Manager Session Manager
 * Bastion Host
@@ -461,7 +143,7 @@ ssh ec2-user@10.0.154.92
 
 ---
 
-## Step 3: Install Node.js
+## Step 2.3: Install Node.js
 
 Update the system:
 
@@ -485,7 +167,7 @@ npm -v
 
 ---
 
-## Step 4: Install Git
+## Step 2.4: Install Git
 
 ```bash
 sudo dnf install git -y
@@ -499,7 +181,7 @@ git --version
 
 ---
 
-## Step 5: Clone Backend Repository
+## Step 2.5: Clone Backend Repository
 
 ```bash
 git clone <YOUR_BACKEND_REPOSITORY_URL>
@@ -511,7 +193,7 @@ Example:
 git clone https://github.com/username/backend.git
 ```
 
-Enter the project:
+Move into the project:
 
 ```bash
 cd backend
@@ -519,7 +201,7 @@ cd backend
 
 ---
 
-## Step 6: Install Dependencies
+## Step 2.6: Install Backend Dependencies
 
 ```bash
 npm install
@@ -533,7 +215,7 @@ npm list --depth=0
 
 ---
 
-## Step 7: Configure Environment Variables
+## Step 2.7: Configure Environment Variables
 
 Create the production environment file:
 
@@ -560,11 +242,11 @@ REDIS_PORT=6379
 
 Use the variables required by your application.
 
-> **Never commit `.env` or production secrets to GitHub.**
+> ⚠️ **Never commit `.env` or production secrets to GitHub.**
 
 ---
 
-## Step 8: Configure Node.js Server
+## Step 2.8: Configure Node.js Server
 
 Make sure your Node.js application listens on `0.0.0.0`.
 
@@ -578,17 +260,17 @@ app.listen(PORT, "0.0.0.0", () => {
 });
 ```
 
-Do not use only:
+Do **not** use only:
 
 ```javascript
 app.listen(PORT, "localhost");
 ```
 
-The frontend EC2 needs to access the backend through its private IP.
+The frontend EC2 needs to access the backend through the backend's private IP.
 
 ---
 
-## Step 9: Test Backend
+## Step 2.9: Test Node.js Backend
 
 Start the application:
 
@@ -622,9 +304,9 @@ CTRL + C
 
 ---
 
-## ⚙️ Step 10: Install PM2
+# ⚙️ 3. Configure PM2
 
-Install PM2 globally:
+## Step 3.1: Install PM2
 
 ```bash
 sudo npm install -g pm2
@@ -638,7 +320,7 @@ pm2 -v
 
 ---
 
-## ▶️ Step 11: Start Node.js with PM2
+## Step 3.2: Start Node.js with PM2
 
 If your entry file is `server.js`:
 
@@ -672,7 +354,7 @@ backend    online
 
 ---
 
-## 📜 Step 12: Check Backend Logs
+## Step 3.3: Check Backend Logs
 
 ```bash
 pm2 logs backend
@@ -686,7 +368,7 @@ pm2 logs backend --lines 100
 
 ---
 
-## 🔄 Step 13: Enable PM2 on Reboot
+## Step 3.4: Enable PM2 on Reboot
 
 Run:
 
@@ -706,15 +388,15 @@ The Node.js backend will now automatically restart after an EC2 reboot.
 
 ---
 
-## 🔎 Step 14: Verify Backend Port
+## Step 3.5: Verify Backend Port
 
-Check the listening port:
+Check:
 
 ```bash
 sudo ss -lntp | grep 3600
 ```
 
-You should see something similar to:
+You should see:
 
 ```text
 0.0.0.0:3600
@@ -734,9 +416,11 @@ Example:
 
 ---
 
-# 🧪 PART 2 — Test Backend Connectivity
+# 🧪 4. Test Backend Connectivity
 
-Connect to the frontend EC2 and run:
+Now connect to the **frontend EC2**.
+
+Test the backend:
 
 ```bash
 curl http://10.0.154.92:3600
@@ -752,9 +436,9 @@ If you receive a response, the frontend EC2 can communicate with the private bac
 
 ---
 
-# 🌐 PART 3 — Frontend Deployment
+# 🌐 5. Frontend Deployment — Public EC2
 
-## Step 15: Connect to Frontend EC2
+## Step 5.1: Connect to Frontend EC2
 
 ```bash
 ssh -i your-key.pem ec2-user@YOUR_FRONTEND_PUBLIC_IP
@@ -762,7 +446,7 @@ ssh -i your-key.pem ec2-user@YOUR_FRONTEND_PUBLIC_IP
 
 ---
 
-## Step 16: Clone Frontend Repository
+## Step 5.2: Clone Frontend Repository
 
 ```bash
 git clone <YOUR_FRONTEND_REPOSITORY_URL>
@@ -774,7 +458,7 @@ Example:
 git clone https://github.com/username/frontend-main.git
 ```
 
-Enter the project:
+Move into the project:
 
 ```bash
 cd frontend-main
@@ -782,15 +466,21 @@ cd frontend-main
 
 ---
 
-## Step 17: Install Dependencies
+## Step 5.3: Install Dependencies
 
 ```bash
 npm install
 ```
 
+Verify:
+
+```bash
+npm list --depth=0
+```
+
 ---
 
-## Step 18: Build React Application
+## Step 5.4: Build React Application
 
 ```bash
 npm run build
@@ -814,7 +504,9 @@ index.html
 
 ---
 
-# 🌐 Step 19: Install Nginx
+# 🌐 6. Install and Configure Nginx
+
+## Step 6.1: Install Nginx
 
 Amazon Linux:
 
@@ -842,7 +534,7 @@ sudo systemctl status nginx
 
 ---
 
-# 🗑️ Step 20: Remove Default Nginx Files
+## Step 6.2: Remove Default Nginx Files
 
 ```bash
 sudo rm -rf /usr/share/nginx/html/*
@@ -856,7 +548,7 @@ ls -la /usr/share/nginx/html
 
 ---
 
-# 📦 Step 21: Copy React Build
+## Step 6.3: Copy React Build
 
 ```bash
 sudo cp -r dist/* /usr/share/nginx/html/
@@ -878,9 +570,9 @@ assets/
 
 ---
 
-# 🔀 Step 22: Configure Nginx Reverse Proxy
+# 🔀 7. Configure Nginx Reverse Proxy
 
-Create the configuration:
+Create the configuration file:
 
 ```bash
 sudo nano /etc/nginx/conf.d/frontend.conf
@@ -937,15 +629,15 @@ http://10.0.154.92:3600/api/query/footer/message
 
 ---
 
-# ⚛️ PART 4 — Configure Axios
+# ⚛️ 8. Configure Axios
 
-Do not use:
+Do **not** use:
 
 ```javascript
 baseURL: "http://44.207.202.196:3600"
 ```
 
-Do not directly use the backend private IP from React.
+Do **not** directly use the backend private IP from React.
 
 Use:
 
@@ -969,7 +661,7 @@ Make API requests:
 serverUrl.get("api/query/footer/message");
 ```
 
-The request flow is:
+The request flow becomes:
 
 ```text
 Browser
@@ -989,9 +681,9 @@ Database / Redis
 
 ---
 
-# ✅ PART 5 — Validate Nginx
+# ✅ 9. Validate Nginx
 
-## Step 23: Test Configuration
+Test the configuration:
 
 ```bash
 sudo nginx -t
@@ -1004,9 +696,7 @@ syntax is ok
 test is successful
 ```
 
----
-
-## Step 24: Reload Nginx
+Reload Nginx:
 
 ```bash
 sudo systemctl reload nginx
@@ -1014,21 +704,21 @@ sudo systemctl reload nginx
 
 ---
 
-# 🧪 PART 6 — Final Testing
+# 🧪 10. Final Testing
 
-### Test Node.js from Backend EC2
+## Test Node.js from Backend EC2
 
 ```bash
 curl http://localhost:3600/api/query/footer/message
 ```
 
-### Test Backend from Frontend EC2
+## Test Backend from Frontend EC2
 
 ```bash
 curl http://10.0.154.92:3600/api/query/footer/message
 ```
 
-### Test Nginx Reverse Proxy
+## Test Nginx Reverse Proxy
 
 On the frontend EC2:
 
@@ -1036,7 +726,7 @@ On the frontend EC2:
 curl http://localhost/api/query/footer/message
 ```
 
-### Test from Browser
+## Test Frontend
 
 Open:
 
@@ -1044,7 +734,7 @@ Open:
 http://YOUR_FRONTEND_PUBLIC_IP
 ```
 
-or:
+Or:
 
 ```text
 http://YOUR_DOMAIN_NAME
@@ -1052,7 +742,7 @@ http://YOUR_DOMAIN_NAME
 
 ---
 
-# 🔍 Troubleshooting
+# 🔍 11. Troubleshooting
 
 ### Nginx status
 
@@ -1110,7 +800,7 @@ curl http://localhost/api/query/footer/message
 
 ---
 
-# 🔐 Final Architecture
+# 🔐 12. Final Architecture
 
 ```text
                          🌍 Internet
@@ -1125,7 +815,6 @@ curl http://localhost/api/query/footer/message
                     └─────────┬─────────┘
                               │
                               │ /api/*
-                              │
                               ▼
                     ┌───────────────────┐
                     │    Backend EC2    │
@@ -1155,6 +844,6 @@ Internet
                        └──► Database
 ```
 
-Only the **frontend EC2** is publicly accessible. The **Node.js backend remains private** and accepts traffic only from the frontend EC2 Security Group.
+Only the **frontend EC2** is publicly accessible.
 
-
+The **Node.js backend remains private** and accepts traffic only from the frontend EC2 Security Group.
